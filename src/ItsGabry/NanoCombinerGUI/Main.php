@@ -30,6 +30,23 @@ class Main extends PluginBase implements Listener {
             InvMenuHandler::register($this);
         }
     }
+    private function returnItems($player, $item1, $item2)
+        if($player->getInventory()->canAddItem($item1)){
+            $player->getInventory()->addItem($item1);
+        }
+        else{
+            $player->dropItem($item1);
+        }
+        if($player->getInventory()->canAddItem($item2)){
+            $player->getInventory()->addItem($item2);
+        }
+        else{
+            $player->dropItem($item2);
+        }
+        return false;
+
+}
+    }
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
         switch (strtolower($command->getName())) {
             case "combiner":
@@ -37,12 +54,10 @@ class Main extends PluginBase implements Listener {
                     $menu = InvMenu::create(InvMenu::TYPE_CHEST);
                     $menu->setInventoryCloseListener(function(Player $player, Inventory $inventory) {
                         if($inventory->getItem(10)->isNull() xor $inventory->getItem(16)->isNull()) {
-                                $player->getInventory()->addItem($inventory->getItem(10));
-                                $player->getInventory()->addItem($inventory->getItem(16));
+                                returnItems($player, $inventory->getItem(10), $inventory->getItem(16));
                         }elseif(!($inventory->getItem(10)->isNull() and $inventory->getItem(16)->isNull())) {
                             if($this->EconomyAPEEE()->myMoney($player) < $this->getConfig()->get("Cost")) {
-                                $player->getInventory()->addItem($inventory->getItem(10));
-                                $player->getInventory()->addItem($inventory->getItem(16));
+                                returnItems($player, $inventory->getItem(10), $inventory->getItem(16));
                             }
                         }
                     });
@@ -109,26 +124,32 @@ class Main extends PluginBase implements Listener {
                                                         if ($enchantment->getId() === 311 and (in_array($enchantment1->getId(), $IncompatibleBlaze)) or ($enchantment1->getId() === 311 and (in_array($enchantment->getId(), $IncompatibleBlaze)))) {
                                                             $player->removeWindow($action->getInventory());
                                                             $player->sendMessage(TextFormat::RED . "Incompatible enchantments");
+                                                            returnItems($player, $item1, $item2);
                                                             return false;
                                                         }elseif ($enchantment->getId() === 313 and (in_array($enchantment1->getId(), $IncompatibleGrappling)) or ($enchantment1->getId() === 313 and (in_array($enchantment->getId(), $IncompatibleGrappling)))) {
                                                             $player->removeWindow($action->getInventory());
                                                             $player->sendMessage(TextFormat::RED . "Incompatible enchantments");
+                                                            returnItems($player, $item1, $item2);
                                                             return false;
                                                         }elseif ($enchantment->getId() === 415 and (in_array($enchantment1->getId(), $IncompatibleGrow)) or ($enchantment1->getId() === 415 and (in_array($enchantment->getId(), $IncompatibleGrow)))) {
                                                             $player->removeWindow($action->getInventory());
                                                             $player->sendMessage(TextFormat::RED . "Incompatible enchantments");
+                                                            returnItems($player, $item1, $item2);
                                                             return false;
                                                         }elseif ($enchantment->getId() === 316 and (in_array($enchantment1->getId(), $IncompatibleHoming)) or ($enchantment1->getId() === 316 and (in_array($enchantment->getId(), $IncompatibleHoming)))) {
                                                             $player->removeWindow($action->getInventory());
                                                             $player->sendMessage(TextFormat::RED . "Incompatible enchantments");
+                                                            returnItems($player, $item1, $item2);
                                                             return false;
                                                         }elseif ($enchantment->getId() === 314 and (in_array($enchantment1->getId(), $IncompatiblePorkified)) or ($enchantment1->getId() === 314 and (in_array($enchantment->getId(), $IncompatiblePorkified)))) {
                                                             $player->removeWindow($action->getInventory());
                                                             $player->sendMessage(TextFormat::RED . "Incompatible enchantments");
+                                                            returnItems($player, $item1, $item2);
                                                             return false;
                                                         }elseif ($enchantment->getId() === 18 and (in_array($enchantment1->getId(), $IncompatibleFortune)) or ($enchantment1->getId() === 18 and (in_array($enchantment->getId(), $IncompatibleFortune)))) {
                                                             $player->removeWindow($action->getInventory());
                                                             $player->sendMessage(TextFormat::RED . "Incompatible enchantments");
+                                                            returnItems($player, $item1, $item2);
                                                             return false;
                                                         }
                                                     }
@@ -150,36 +171,46 @@ class Main extends PluginBase implements Listener {
                                                 }
                                                 $this->EconomyAPEEE()->reduceMoney($player, $this->getConfig()->get("Cost"));
                                                 $player->removeWindow($action->getInventory());
-                                                $player->getInventory()->addItem($item);
+                                                if($player->getInventory()->canAddItem($item)){
+                                                    $player->getInventory()->addItem($item);
+                                                }
+                                                else{
+                                                    $player->dropItem($item);
+                                                }
                                                 $player->sendMessage(TextFormat::GREEN . "You have successfully combined the enchantments for" . " " . $this->getConfig()->get("Cost") . " " . "money");
 
 
                                             }else{
                                                 $player->removeWindow($action->getInventory());
                                                 $player->sendMessage(TextFormat::RED . "Both items must be the same");
+                                                returnItems($player, $item1, $item2);
                                             }
 
 
                                         } else {
                                             $player->removeWindow($action->getInventory());
                                             $player->sendMessage(TextFormat::RED . "Both items must have enchantments");
+                                            returnItems($player, $item1, $item2);
                                         }
 
 
                                     } else {
                                         $player->removeWindow($action->getInventory());
                                         $player->sendMessage(TextFormat::RED . "There must be two items");
+                                        returnItems($player, $item1, $item2);
                                     }
 
                                 } else {
                                     $player->removeWindow($action->getInventory());
                                     $player->sendMessage(TextFormat::RED . "There must be two items");
+                                    returnItems($player, $item1, $item2);
                                 }
 
 
                             }elseif($this->EconomyAPEEE()->myMoney($player) < $this->getConfig()->get("Cost")){
                                 $player->removeWindow($action->getInventory());
                                 $player->sendMessage(TextFormat::RED . "You don't have enough money!");
+                                returnItems($player, $item1, $item2);
 
                             }
 
@@ -187,6 +218,7 @@ class Main extends PluginBase implements Listener {
 
                         if(in_array($action->getSlot(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25])) {
                             $player->removeWindow($action->getInventory());
+                            returnItems($player, $item1, $item2);
                         }
 
                         if (in_array($action->getSlot(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])) {
