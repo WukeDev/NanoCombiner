@@ -33,19 +33,15 @@ class Main extends PluginBase implements Listener {
     private function returnItems($player, $item1, $item2)
         if($player->getInventory()->canAddItem($item1)){
             $player->getInventory()->addItem($item1);
-        }
-        else{
+        } else{
             $player->dropItem($item1);
         }
         if($player->getInventory()->canAddItem($item2)){
             $player->getInventory()->addItem($item2);
-        }
-        else{
+        } else{
             $player->dropItem($item2);
         }
         return false;
-
-}
     }
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
         switch (strtolower($command->getName())) {
